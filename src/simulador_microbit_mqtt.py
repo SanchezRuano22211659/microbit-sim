@@ -15,9 +15,7 @@ def sane_temp(value):
 def sane_light(value):
     return 0 <= value <= 255
 
-client = mqtt.Client(client_id="simulador-microbit")
-if MQTT_USER:
-    client.username_pw_set(MQTT_USER, MQTT_PASS)
+client = mqtt.Client(client_id="simulador-microbit", protocol=mqtt.MQTTv311)
 
 print(f"[MQTT] Conectando a {BROKER_HOST}:{BROKER_PORT} topic={MQTT_TOPIC}")
 client.connect(BROKER_HOST, BROKER_PORT, keepalive=60)
@@ -30,7 +28,6 @@ while True:
     light = random.randint(-10, 300)
     ts = int(time.time() * 1000)
 
-    # Determina estado
     status = []
     if not sane_temp(temp):
         status.append("temp_oob")
@@ -48,7 +45,6 @@ while True:
         "status": status
     }
 
-    # Publica al broker
     client.publish(MQTT_TOPIC, json.dumps(payload), qos=1)
     print(f"[PUB] {json.dumps(payload)}")
 
